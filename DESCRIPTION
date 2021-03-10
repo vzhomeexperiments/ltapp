@@ -1,0 +1,16 @@
+Package: MonitorGolem
+Title: MONITOR
+Version: 0.0.0.9000
+Authors@R: person('Florian', 'Assous', email = 'florian.assous@hotmail.fr', role = c('cre', 'aut'))
+Description: Monitor for the DSS.
+License: MIT + file LICENSE
+Imports: 
+    config,
+    golem,
+    shiny,
+    htmltools,
+    thinkr,
+    plotly
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
