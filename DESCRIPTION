@@ -1,4 +1,4 @@
-Package: MonitorGolem
+Package: ltapp
 Title: MONITOR
 Version: 0.0.0.9000
 Authors@R: person('Florian', 'Assous', email = 'florian.assous@hotmail.fr', role = c('cre', 'aut'))

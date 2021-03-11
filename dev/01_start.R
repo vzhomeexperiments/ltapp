@@ -14,7 +14,7 @@
 ## Fill the DESCRIPTION ----
 ## Add meta data about your application
 golem::fill_desc(
-  pkg_name = "LTAPP", # The Name of the package containing the App 
+  pkg_name = "ltapp", # The Name of the package containing the App 
   pkg_title = "MONITOR", # The Title of the package containing the App 
   pkg_description = "Monitor for the DSS.", # The Description of the package containing the App 
   author_first_name = "Florian", # Your First Name
