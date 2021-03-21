@@ -15,7 +15,16 @@
 
 ## Dependencies ----
 ## Add one line by package you want to add as dependency
-usethis::use_package( "plotly" )
+usethis::use_package( "thinkr" )
+usethis::use_package("plotly")
+usethis::use_package("purrr")
+usethis::use_package("readr")
+usethis::use_package("magrittr")
+usethis::use_package("lubridate")
+usethis::use_package("dplyr")
+usethis::use_package("ggplot2")
+usethis::use_package("randomcoloR")
+usethis::use_package("lazytrade")
 
 ## Add modules ----
 ## Create a module infrastructure in R/
@@ -35,6 +44,9 @@ golem::add_css_file( "custom" )
 ## Add internal datasets ----
 ## If you have data in your package
 usethis::use_data_raw( name = "my_dataset", open = FALSE ) 
+
+                                                                      
+
 
 ## Tests ----
 ## Add one line by test you want to create

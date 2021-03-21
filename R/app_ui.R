@@ -5,7 +5,8 @@
 #' @import shiny
 #' @noRd
 #' 
-#' 
+library("plotly")
+library("DT")
 path_user <- normalizePath(Sys.getenv('PATH_DSS'), winslash = '/')
 path_data <- file.path(path_user, "_DATA")
 macd_ai <- readr::read_rds(file.path(path_data, 'macd_ai_classified.rds'))
@@ -39,7 +40,7 @@ app_ui <- function(request) {
                                           tabPanel("Console",verbatimTextOutput("console")),
                                           tabPanel("Data",
                                                    tabsetPanel(
-                                                     tabPanel("Data",tableOutput("data")),
+                                                     tabPanel("Data",DT::dataTableOutput("data")),
                                                      tabPanel("Balance",tableOutput("balance")))),
                                           tabPanel("Graph",
                                                    tabsetPanel(
@@ -49,14 +50,12 @@ app_ui <- function(request) {
                                                    tabsetPanel(
                                                      tabPanel("Result",em("Click Refresh to update the data"),
                                                               br(),
-                                                              tableOutput("watchDogReport")),
+                                                              DT::dataTableOutput("watchDogReport")),
                                                      tabPanel("Graph",plotlyOutput("equityGraph")))),
                                           
                                           tabPanel( 
                                             "Report",br(),
                                             
-                                            column(width = 12,fluidRow(
-                                              column(12,tableOutput("result")))),
                                             column(width = 12,fluidRow(
                                               column(3,strong("Total Trades :", style = "text-decoration: underline;")),
                                               column(3,textOutput("totalTrade")))),
@@ -68,7 +67,11 @@ app_ui <- function(request) {
                                               column(3,textOutput("maxProfit")))),
                                             column(width = 12, fluidRow(
                                               column(3,strong("Minimum Profit :", style = "text-decoration: underline;")),
-                                              column(3,textOutput("minProfit")))), p(),p(),br()))))),
+                                              column(3,textOutput("minProfit"))),
+                                              p(),p(),br()),
+                                            column(width = 12,fluidRow(
+                                              column(12,DT::dataTableOutput("result")))),
+                                          ))))),
                  tabPanel(
                    "MT INSPECTION",sidebarLayout(
                      sidebarPanel(
@@ -94,7 +97,7 @@ app_ui <- function(request) {
                    "MODEL INSPECTION", sidebarLayout(
                      sidebarPanel(actionButton(inputId = "RefreshM60", label = "Refresh")),
                      mainPanel(tabsetPanel(type = "pills",
-                                           tabPanel("Result",tableOutput("AnalyseResult")),
+                                           tabPanel("Result",DT::dataTableOutput("AnalyseResult")),
                                            tabPanel("Graph",plotOutput("strategyTestResults"),
                                                     plotOutput(("modelPerformance"))))),
                      position = "right")),

@@ -8,9 +8,17 @@
 #' 
 #
 
-library(plotly)
-library(dplyr)
+library(readr)
 library(magrittr)
+library(lazytrade)
+library(lubridate)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(DT)
+library(plotly)
+library(randomcoloR)
+
 
 app_server <- function( input, output, session ) {
   
@@ -47,7 +55,8 @@ app_server <- function( input, output, session ) {
   #---------------------------------------    
   symbol <- reactive({
     if(file.exists(file_path())){  
-      unique(DF_Stats()$Symbol)
+      symbol <-  unique(DF_Stats()$Symbol)
+      symbol[order(symbol)]
     }else{"NO DATA"}
   })
   #---------------------------------------
@@ -150,17 +159,18 @@ app_server <- function( input, output, session ) {
     }
   })
   
-  output$data <- renderTable({
+  output$data <- DT::renderDataTable({
     if(file.exists(file_path())) {
-      Stats <-  data.frame(MagicNumber = Stats()$MagicNumber,
-                           Ticket = Stats()$Ticket,
-                           EntryTime = as.character(Stats()$EntryTime),
-                           ExitTime = as.character(Stats()$ExitTime),
-                           Profit = Stats()$Profit,
-                           Symbol = Stats()$Symbol,
-                           Type = Stats()$Type)
+      Stats <- data.frame(MagicNumber = Stats()$MagicNumber,
+                          Ticket = Stats()$Ticket,
+                          EntryTime = as.character(Stats()$EntryTime),
+                          ExitTime = as.character(Stats()$ExitTime),
+                          Profit = Stats()$Profit,
+                          Symbol = Stats()$Symbol,
+                          Type = Stats()$Type)
       
-      Stats
+      
+      
       switch(input$Sort,
              "MagicNumber" =  Stats[order(Stats$MagicNumber,decreasing = T),],
              "Ticket" =  Stats[order(Stats$Ticket,decreasing = T),],
@@ -168,6 +178,10 @@ app_server <- function( input, output, session ) {
              "ExitTime" =  Stats[order(Stats$ExitTime,decreasing = T),],
              "Profit"=  Stats[order(Stats$Profit,decreasing = T),],
              "Symbol"=  Stats[order(Stats$Symbol,decreasing = T),])
+      
+      datatable(Stats,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
+        pageLength = 100, autoWidth = TRUE))
+      
     }else{"NO DATA"}
   })
   
@@ -327,12 +341,16 @@ app_server <- function( input, output, session ) {
     } else{"NO DATA"}
   })
   
-  output$watchDogReport <- renderTable({
+  output$watchDogReport <- DT::renderDataTable({
     if(file.exists(account_path())){
       df_AR <-  data.frame(DateTime =as.character(accountResults()$DateTime),
                            Balance = accountResults()$Balance,
                            Equity = accountResults()$Equity,
                            Profit = accountResults()$Profit)
+      
+      datatable(df_AR,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
+        pageLength = 100, autoWidth = TRUE))
+      
     }else{"NO DATA"}
   }) 
   
@@ -475,7 +493,7 @@ app_server <- function( input, output, session ) {
     }
   })
   
-  output$result <- renderTable({
+  output$result <- DT::renderDataTable({
     
     if(file.exists(file_path())){
       DF_allPair <- DF_Balance_All()
@@ -499,6 +517,8 @@ app_server <- function( input, output, session ) {
         Final_Balance <- left_join(x = Final_Balance, y = buyTrade(),by = "Symbol")
         Final_Balance <- left_join(x = Final_Balance, y = sellTrade(),by = "Symbol") 
         
+        
+        
       }else{
         Final_Balance <- left_join(x = Final_Balance,y = buyProfit(), by = "Symbol")
         Final_Balance <- left_join(x = Final_Balance,y = sellProfit(), by = "Symbol")
@@ -509,6 +529,9 @@ app_server <- function( input, output, session ) {
       FB[is.na(FB)] <- 0
       FB <- FB %>% cbind(FB$Buy_Trade + FB$Sell_Trade) %>%
         set_names(c("Symbol","Final_Balance","Buy_Profit","Sell_Profit","Buy_Trade","Sell_Trade", "Total_Trade"))
+      
+      datatable(FB,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
+        pageLength = 28, autoWidth = TRUE))
     }
     else{"NO DATA"}
   })
@@ -711,10 +734,22 @@ app_server <- function( input, output, session ) {
     pathDSS <- normalizePath(Sys.getenv("PATH_DSS"), winslash = '/')
     file_path <- paste0(pathDSS,"/_DATA/analyse_resultM60.csv")
     DF_Result <- read.csv(file_path, col.names = c("TR_Level","NB_hold","Symbol","MaxPerf","FrstQntlPerf"))
+    
+    
+    
   })
   
-  output$AnalyseResult <- renderTable({
-    readResult()
+  output$AnalyseResult <- DT::renderDataTable({
+    
+    DF_Result <- data.frame(TR_Level = readResult()$TR_Level,
+                            NB_hold = readResult()$NB_hold,
+                            Symbol =readResult()$Symbol,
+                            MaxPerf = format(round(readResult()$MaxPerf,2),nsmall=2),
+                            FrstQntlPerf = format(round(readResult()$FrstQntlPerf,2),nsmall=2))
+    
+    datatable(DF_Result,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
+      pageLength = 28, autoWidth = TRUE))
+    
   })
   
   dataResult <- reactive({
@@ -773,6 +808,9 @@ app_server <- function( input, output, session ) {
     
     write.csv(dfres1,paste0(path_user,"/_DATA/analyse_resultM60.csv"), row.names=FALSE)
     write.csv(dfres,paste0(path_user,"/_DATA/analyse_resultM60_data.csv"), row.names=FALSE)
+    readResult()
+    dataResult()
+    
   })
   
   
@@ -822,7 +860,10 @@ app_server <- function( input, output, session ) {
   #---------------END CODE------------------------------------------
   output$console <- renderPrint({
     
-    print(perf_log())
+    data.frame(ExitTime = as.character(DF_Balance()$ExitTime),
+               Profit = DF_Balance()$Profit,
+               Symbol = DF_Balance()$Symbol,
+               Balance = DF_Balance()$Balance)
     
   })
   
