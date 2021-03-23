@@ -149,13 +149,14 @@ app_server <- function( input, output, session ) {
   
   #---------DATA TAB---------------  
   Stats <- reactive({
+    
+    if(input$Time == "Entry Time"){time <- DF_Stats()$EntryTime} 
+    else {time <- DF_Stats()$ExitTime}
     if(input$MagicNum == "All"){
-      DF_Stats <- DF_Stats()%>%filter(ExitTime >= input$From, ExitTime <= paste0(input$To," 23:59:59"))
+      DF_Stats <- DF_Stats()%>%filter(time >= input$From, time <= paste0(input$To," 23:59:59"))
     }
     else{
-      
-      DF_Stats <- DF_Stats()%>%filter(MagicNumber == input$MagicNum, ExitTime >= input$From, ExitTime <= input$To)
-      
+      DF_Stats <- DF_Stats()%>%filter(MagicNumber == input$MagicNum, time >= input$From, time <= input$To)
     }
   })
   

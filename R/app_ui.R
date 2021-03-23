@@ -32,7 +32,7 @@ app_ui <- function(request) {
                                 column(6,dateInput(inputId = "From", label = "From", value = Sys.Date()-7)),
                                 column(6,dateInput(inputId = "To", label = "To", value = Sys.Date())))),
                               column(width = 12,fluidRow(
-                                #     column(6,radioButtons(inputId = "Time",label = "Select the type of time", choices = c("Entry Time" , "Exit Time"),selected = "Exit Time")),
+                                column(6,radioButtons(inputId = "Time",label = "Select time filter", choices = c("Entry Time" , "Exit Time"),selected = "Exit Time")),
                                 column(6,selectInput(inputId = "Sort", label = "Sort data by", choices = c("MagicNumber","Ticket","EntryTime", "ExitTime","Profit","Symbol")))))
                             )),
                             mainPanel(
