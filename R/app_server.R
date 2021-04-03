@@ -181,7 +181,7 @@ app_server <- function( input, output, session ) {
              "Symbol"=  Stats[order(Stats$Symbol,decreasing = T),])
       
       datatable(Stats,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
-        pageLength = 100, autoWidth = TRUE))
+        pageLength = 10, autoWidth = TRUE))
       
     }else{"NO DATA"}
   })
@@ -350,7 +350,7 @@ app_server <- function( input, output, session ) {
                            Profit = accountResults()$Profit)
       
       datatable(df_AR,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
-        pageLength = 100, autoWidth = TRUE))
+        pageLength = 10, autoWidth = TRUE))
       
     }else{"NO DATA"}
   }) 
@@ -566,6 +566,13 @@ app_server <- function( input, output, session ) {
       nrow(Stats())}
     else{"NO DATA"}
   })
+  
+  
+  output$totalProfit <- renderText({
+    DF_allPair <- DF_Balance_All()
+    round(DF_allPair[nrow(DF_allPair),4],2)
+  })
+  
   
   account_path <- reactive({
     
@@ -861,10 +868,9 @@ app_server <- function( input, output, session ) {
   #---------------END CODE------------------------------------------
   output$console <- renderPrint({
     
-    data.frame(ExitTime = as.character(DF_Balance()$ExitTime),
-               Profit = DF_Balance()$Profit,
-               Symbol = DF_Balance()$Symbol,
-               Balance = DF_Balance()$Balance)
+    DF_allPair <- DF_Balance_All()
+    allPair <- round(DF_allPair[nrow(DF_allPair),4],2)
+    print(allPair)
     
   })
   

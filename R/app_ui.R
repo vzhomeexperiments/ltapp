@@ -40,8 +40,9 @@ app_ui <- function(request) {
                                           tabPanel("Console",verbatimTextOutput("console")),
                                           tabPanel("Data",
                                                    tabsetPanel(
-                                                     tabPanel("Data",DT::dataTableOutput("data")),
-                                                     tabPanel("Balance",tableOutput("balance")))),
+                                                     tabPanel("Data",DT::dataTableOutput("data")))),
+                                          #tabPanel("Balance",tableOutput("balance"))
+                                          
                                           tabPanel("Graph",
                                                    tabsetPanel(
                                                      tabPanel("Profit",plotlyOutput("profitGraph")),
@@ -67,7 +68,10 @@ app_ui <- function(request) {
                                               column(3,textOutput("maxProfit")))),
                                             column(width = 12, fluidRow(
                                               column(3,strong("Minimum Profit :", style = "text-decoration: underline;")),
-                                              column(3,textOutput("minProfit"))),
+                                              column(3,textOutput("minProfit")))),
+                                            column(width = 12, fluidRow(
+                                              column(3,strong("Total Profit :", style = "text-decoration: underline;")),
+                                              column(3,textOutput("totalProfit"))),
                                               p(),p(),br()),
                                             column(width = 12,fluidRow(
                                               column(12,DT::dataTableOutput("result")))),
