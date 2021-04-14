@@ -152,6 +152,7 @@ app_server <- function( input, output, session ) {
     
     if(input$Time == "Entry Time"){time <- DF_Stats()$EntryTime} 
     else {time <- DF_Stats()$ExitTime}
+    
     if(input$MagicNum == "All"){
       DF_Stats <- DF_Stats()%>%filter(time >= input$From, time <= paste0(input$To," 23:59:59"))
     }
@@ -233,7 +234,7 @@ app_server <- function( input, output, session ) {
     DF_Balance <- DF_Balance %>%  mutate(Balance) 
   })
   
-  
+  #Disabled
   output$balance <- renderTable({
     if(file.exists(file_path())){
       
@@ -252,12 +253,12 @@ app_server <- function( input, output, session ) {
                                  Balance = DF_Balance_All()$Balance)
       }
     }
-    else{"NO DATA"}
+    
   })
   
   #----------GRAPH TAB-----------------
   output$profitGraph <- renderPlotly({
-    if(file.exists(file_path())){
+    if(file.exists(file_path())&& nrow(Stats()>0)){
       
       color <- c("red", "black", "blue","green","orange","purple", "pink","cornflowerblue", "darkgreen","indianred3","magenta","mediumpurple3", "midnightblue","orchid4","palegreen","skyblue","slateblue4", "tomato1")
       colorList <- vector("list",length(pair()))
@@ -292,13 +293,13 @@ app_server <- function( input, output, session ) {
           marker = list(color = sample(color,1)),
           name = paste0(input$Symbol," PROFIT"))
       }
-    }
+    } 
   })
   
   
   output$balanceGraph <- renderPlotly({
     
-    if(file.exists(file_path())){
+    if(file.exists(file_path()) && nrow(DF_Balance()>0)){
       color <- c("red", "black", "blue","green","orange","purple", "pink","cornflowerblue", "darkgreen","indianred3","magenta","mediumpurple3", "midnightblue","orchid4","palegreen","skyblue","slateblue4", "tomato1")
       colorList <- vector("list",length(pair()))
       
@@ -496,7 +497,7 @@ app_server <- function( input, output, session ) {
   
   output$result <- DT::renderDataTable({
     
-    if(file.exists(file_path())){
+    if(file.exists(file_path())&&nrow(Stats())>0){
       DF_allPair <- DF_Balance_All()
       allPair <- round(DF_allPair[nrow(DF_allPair),4],2)
       final_Balance  <- vector("numeric", length(pair()))
@@ -534,11 +535,11 @@ app_server <- function( input, output, session ) {
       datatable(FB,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
         pageLength = 28, autoWidth = TRUE))
     }
-    else{"NO DATA"}
+    
   })
   
   output$profitFactor <- renderText({
-    if(file.exists(file_path())){
+    if(file.exists(file_path()) && nrow(Stats())>0){
       negProfit <- Stats()%>%filter(Profit<0)%>%select(Profit)%>%summarise(Loss = abs(sum(Profit)))
       posProfit <- Stats()%>%filter(Profit>0)%>%select(Profit)%>%summarise(Gain = abs(sum(Profit)))
       
@@ -552,12 +553,12 @@ app_server <- function( input, output, session ) {
   })
   
   output$maxProfit <- renderText({
-    if(file.exists(file_path())){max(Stats()$Profit)}
+    if(file.exists(file_path())&&nrow(Stats())>0){max(Stats()$Profit)}
     else{"NO DATA"}
   })
   
   output$minProfit <- renderText({
-    if(file.exists(file_path())){min(Stats()$Profit)}
+    if(file.exists(file_path())&&nrow(Stats())>0){min(Stats()$Profit)}
     else{"NO DATA"}
   })
   
@@ -569,8 +570,10 @@ app_server <- function( input, output, session ) {
   
   
   output$totalProfit <- renderText({
-    DF_allPair <- DF_Balance_All()
-    round(DF_allPair[nrow(DF_allPair),4],2)
+    if(nrow(DF_Balance_All())>0){
+      DF_allPair <- DF_Balance_All()
+      round(DF_allPair[nrow(DF_allPair),4],2)
+    }else{"0"}
   })
   
   
@@ -741,13 +744,15 @@ app_server <- function( input, output, session ) {
     
     pathDSS <- normalizePath(Sys.getenv("PATH_DSS"), winslash = '/')
     file_path <- paste0(pathDSS,"/_DATA/analyse_resultM60.csv")
-    DF_Result <- read.csv(file_path, col.names = c("TR_Level","NB_hold","Symbol","MaxPerf","FrstQntlPerf"))
+    DF_Result <- readr::read_csv(file_path) 
+    #Col.names = c("TR_Level","NB_hold","Symbol","MaxPerf","FrstQntlPerf"))
     
     
     
   })
   
   output$AnalyseResult <- DT::renderDataTable({
+    
     
     DF_Result <- data.frame(TR_Level = readResult()$TR_Level,
                             NB_hold = readResult()$NB_hold,
@@ -756,15 +761,28 @@ app_server <- function( input, output, session ) {
                             FrstQntlPerf = format(round(readResult()$FrstQntlPerf,2),nsmall=2))
     
     datatable(DF_Result,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
-      pageLength = 28, autoWidth = TRUE))
+      pageLength = 10, autoWidth = TRUE))
     
   })
   
   dataResult <- reactive({
     pathDSS <- normalizePath(Sys.getenv("PATH_DSS"), winslash = '/')
-    file_path <- paste0(pathDSS,"/_data/analyse_resultM60_data.csv")
-    DF_DataResult <- read.csv(file_path, col.names = c("PnL_NB","TotalTrades","TR_Level","NB_hold","Symbol","FinalOutCome"))
+    file_path <- paste0(pathDSS,"/_DATA/analyse_resultM60_data.csv")
+    DF_DataResult <- readr::read_csv(file_path)
     
+  })
+  
+  
+  output$dataRes <- DT::renderDataTable({
+    DF_Data_Result <- data.frame(PnL_NB = round(dataResult()$PnL_NB,5),
+                                 TotalTrades = dataResult()$TotalTrades,
+                                 TR_Level = dataResult()$TR_Level,
+                                 NB_hold = dataResult()$NB_hold,
+                                 Symbol = dataResult()$Symbol,
+                                 FinalOutcome = dataResult()$FinalOutcome)
+    
+    datatable(DF_Data_Result,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
+      pageLength = 10, autoWidth = TRUE))
   })
   
   output$strategyTestResults <- renderPlot({
@@ -816,8 +834,8 @@ app_server <- function( input, output, session ) {
     
     write.csv(dfres1,paste0(path_user,"/_DATA/analyse_resultM60.csv"), row.names=FALSE)
     write.csv(dfres,paste0(path_user,"/_DATA/analyse_resultM60_data.csv"), row.names=FALSE)
-    readResult()
-    dataResult()
+    
+    session$reload()
     
   })
   
@@ -831,14 +849,29 @@ app_server <- function( input, output, session ) {
   perf_log <- reactive({
     pathDSS <- normalizePath(Sys.getenv("PATH_DSS"), winslash = '/')
     file_path <- paste0(pathDSS,"/_LOGS/perf_logs60.rds")
-    perf_log <- readr::read_rds(file_path)
+    perf_log <- readr::read_rds(file_path) %>%
+      filter(TimeTest >= input$FromCopy, TimeTest <= paste0(input$ToCopy," 23:59:59"))
+    
     
   })
   
-  output$perfLog <- renderTable({
+  
+  observeEvent(input$From,{
+    updateDateInput(session,inputId = "FromCopy",label = NULL,value = input$From)
+    
+  })
+  
+  observeEvent(input$To,{
+    updateDateInput(session,inputId = "ToCopy",label = NULL,value = input$To)
+  })
+  
+  output$perfLog <- DT::renderDataTable({
     perfLog <- data.frame(TimeTest = as.character(perf_log()$TimeTest),
-                          MeanPerf = perf_log()$MeanPerf,
-                          Quantil = perf_log()$Quantil)
+                          MeanPerf = round(perf_log()$MeanPerf,2),
+                          Quantil = round(perf_log()$Quantil,2))
+    datatable(perfLog,class = 'cell-border stripe', rownames = FALSE, filter = 'top', options = list(
+      pageLength = 10, autoWidth = TRUE))  
+    
   })
   
   
@@ -868,9 +901,7 @@ app_server <- function( input, output, session ) {
   #---------------END CODE------------------------------------------
   output$console <- renderPrint({
     
-    DF_allPair <- DF_Balance_All()
-    allPair <- round(DF_allPair[nrow(DF_allPair),4],2)
-    print(allPair)
+    print(nrow(Stats()))
     
   })
   

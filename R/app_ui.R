@@ -17,6 +17,21 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # List the first level UI elements here 
     fluidPage(
+      
+      tags$head(
+        # Note the wrapping of the string in HTML()
+        tags$style(HTML("
+      @import url('https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap');
+      body {
+        background-color: #fffae8;
+       
+      }
+     
+      .shiny-input-container {
+        color: #474747;
+      }"))
+      ),
+      
       navbarPage("EA MANAGEMENT",
                  tabPanel("RESULT",
                           sidebarLayout(
@@ -99,17 +114,28 @@ app_ui <- function(request) {
                  ),
                  tabPanel(
                    "MODEL INSPECTION", sidebarLayout(
-                     sidebarPanel(actionButton(inputId = "RefreshM60", label = "Refresh")),
+                     sidebarPanel(actionButton(inputId = "RefreshM60", label = "Refresh"),
+                                  helpText("Write the last model inspection result and Refresh the app")),
                      mainPanel(tabsetPanel(type = "pills",
-                                           tabPanel("Result",DT::dataTableOutput("AnalyseResult")),
-                                           tabPanel("Graph",plotOutput("strategyTestResults"),
-                                                    plotOutput(("modelPerformance"))))),
+                                           tabPanel("Result",
+                                                    tabsetPanel(type = "tabs",
+                                                                tabPanel("Simulation",DT::dataTableOutput("dataRes")),
+                                                                tabPanel("Performance",DT::dataTableOutput("AnalyseResult")))),
+                                           tabPanel("Graph",
+                                                    tabsetPanel(type = "tabs",
+                                                                tabPanel("Simulation",plotOutput("strategyTestResults")),
+                                                                tabPanel("Performance",plotOutput(("modelPerformance"))))))),
                      position = "right")),
                  tabPanel(
                    "PERFORMANCE",sidebarLayout(
-                     sidebarPanel(),
+                     sidebarPanel(fluidRow(
+                       column(width = 12,fluidRow(
+                         column(6,dateInput(inputId = "FromCopy", label = "From", value = "2021-04-01")),
+                         column(6,dateInput(inputId = "ToCopy", label = "To", value = Sys.Date()))))),
+                       
+                     ),
                      mainPanel(tabsetPanel( type = "pills",
-                                            tabPanel("Log",tableOutput("perfLog")),
+                                            tabPanel("Log",DT::dataTableOutput("perfLog")),
                                             tabPanel("Graph",br(),plotlyOutput("perfGraph")))),
                      position = "right")
                  )
