@@ -1,5 +1,5 @@
 Package: ltapp
-Title: MONITOR
+Title: Monitoring of trading and development facility
 Version: 0.0.0.9000
 Authors@R: person('Florian', 'Assous', email = 'florian.assous@hotmail.fr', role = c('cre', 'aut'))
 Description: Monitor for the DSS.

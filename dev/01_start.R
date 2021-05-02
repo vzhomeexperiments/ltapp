@@ -15,10 +15,10 @@
 ## Add meta data about your application
 golem::fill_desc(
   pkg_name = "ltapp", # The Name of the package containing the App 
-  pkg_title = "MONITOR", # The Title of the package containing the App 
+  pkg_title = "Monitoring of trading and development facility", # The Title of the package containing the App 
   pkg_description = "Monitor for the DSS.", # The Description of the package containing the App 
   author_first_name = "Florian", # Your First Name
-  author_last_name = "Assous", # Your Last Name
+  author_last_name = "Assous", # Your Last Name 
   author_email = "florian.assous@hotmail.fr", # Your Email
   repo_url = NULL # The URL of the GitHub Repo (optional) 
 )     
@@ -28,7 +28,7 @@ golem::set_golem_options()
 
 ## Create Common Files ----
 ## See ?usethis for more information
-usethis::use_mit_license( name = "Lazytrade" )  # You can set another license here
+usethis::use_mit_license( name = "ltapp" )  # You can set another license here
 # usethis::use_readme_rmd( open = FALSE )
 # usethis::use_code_of_conduct()
 # usethis::use_lifecycle_badge( "Experimental" )
